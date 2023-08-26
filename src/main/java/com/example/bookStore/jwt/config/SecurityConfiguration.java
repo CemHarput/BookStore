@@ -1,9 +1,11 @@
 package com.example.bookStore.jwt.config;
 
+import com.example.bookStore.jwt.enums.Role;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -41,6 +43,9 @@ public class SecurityConfiguration {
 
          http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth.requestMatchers(AUTH_WHITELIST)
                  .permitAll()
+                 .requestMatchers("/api/v1/addBooks").hasAnyRole(Role.ADMIN.name())
+                 .requestMatchers(HttpMethod.DELETE,"/api/v1/books/{isbn}").hasAnyRole(Role.ADMIN.name())
+                 .requestMatchers(HttpMethod.PUT,"/api/v1/books/{isbn}").hasAnyRole(Role.ADMIN.name())
                  .anyRequest()
                  .authenticated()).sessionManagement(sess->sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).authenticationProvider(authenticationProvider).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

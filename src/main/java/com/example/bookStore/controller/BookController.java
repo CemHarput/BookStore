@@ -57,7 +57,7 @@ public class BookController {
     }
 
     @Operation(tags = "Book Controller")
-    @PostMapping("/addbooks")
+    @PostMapping("/addBooks")
     public ResponseEntity<BookDto> createBook(@RequestBody BookDto bookDto) {
         try {
             BookDto createdBook = bookService.createBook(bookDto);
