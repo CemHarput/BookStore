@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.bookStore.service.BookService;
 
@@ -43,6 +44,7 @@ public class BookController {
 
     @Operation(tags = "Book Controller")
     @DeleteMapping("/books/{isbn}")
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> deleteBook(@PathVariable UUID isbn) {
         try {
             bookService.deleteBook(isbn);
@@ -58,6 +60,7 @@ public class BookController {
 
     @Operation(tags = "Book Controller")
     @PostMapping("/addBooks")
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<BookDto> createBook(@RequestBody BookDto bookDto) {
         try {
             BookDto createdBook = bookService.createBook(bookDto);
@@ -77,6 +80,7 @@ public class BookController {
 
     @Operation(tags = "Book Controller")
     @PutMapping("/books/{isbn}")
+    @PreAuthorize(value = "hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<BookDto> updateBook(@PathVariable UUID isbn, @RequestBody BookDto bookDto) {
         try {
             BookDto updatedBook = bookService.updateBook(isbn, bookDto);

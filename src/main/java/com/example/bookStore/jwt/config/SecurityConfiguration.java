@@ -28,12 +28,13 @@ public class SecurityConfiguration {
             "/swagger-resources/**",
             "/configuration/ui",
             "/configuration/security",
-            "/swagger-ui.html/**",
+            "/swagger-ui/**",
             "/webjars/**",
             // -- Swagger UI v3 (OpenAPI)
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/api/v1/users/**"
+            "/api/v1/users/**",
+            "/api/v1/books/**"
             // other public endpoints of your API may be appended to this array
     };
 
@@ -43,9 +44,6 @@ public class SecurityConfiguration {
 
          http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth.requestMatchers(AUTH_WHITELIST)
                  .permitAll()
-                 .requestMatchers("/api/v1/addBooks").hasAnyRole(Role.ADMIN.name())
-                 .requestMatchers(HttpMethod.DELETE,"/api/v1/books/{isbn}").hasAnyRole(Role.ADMIN.name())
-                 .requestMatchers(HttpMethod.PUT,"/api/v1/books/{isbn}").hasAnyRole(Role.ADMIN.name())
                  .anyRequest()
                  .authenticated()).sessionManagement(sess->sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).authenticationProvider(authenticationProvider).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
