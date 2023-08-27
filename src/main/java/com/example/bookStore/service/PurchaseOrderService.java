@@ -30,15 +30,11 @@ public class PurchaseOrderService {
 
     private final BookDtoConverter bookDtoConverter;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     public PurchaseOrderService(PurchaseOrderRepository purchaseOrderRepository, BookRepository bookRepository, PurchaseOrderDtoConverter purchaseOrderDtoConverter, BookDtoConverter bookDtoConverter, EntityManager entityManager) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.bookRepository = bookRepository;
         this.purchaseOrderDtoConverter = purchaseOrderDtoConverter;
         this.bookDtoConverter = bookDtoConverter;
-        this.entityManager = entityManager;
     }
 
     public List<PurchaseOrderDto> getAllOrderOrderedByUpdateDateDesc() {
@@ -50,12 +46,7 @@ public class PurchaseOrderService {
                 .collect(Collectors.toList());
     }
     public PurchaseOrderDto findOrderWithBookDetailsByOrderId(UUID id) {
-        PurchaseOrder purchaseOrder = entityManager.createQuery(
-                        "SELECT po FROM PurchaseOrder po " +
-                                " INNER JOIN FETCH po.books " +
-                                "WHERE po.orderId = :id", PurchaseOrder.class)
-                .setParameter("id", id)
-                .getSingleResult();
+        PurchaseOrder purchaseOrder = purchaseOrderRepository.findByOrderId(id);
 
         return purchaseOrderDtoConverter.convert(purchaseOrder);
     }
