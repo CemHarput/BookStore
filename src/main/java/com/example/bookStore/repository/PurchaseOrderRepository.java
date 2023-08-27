@@ -9,5 +9,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, UUID> {
-    List<PurchaseOrder> findByUser(AppUser appUser);
+    List<PurchaseOrder> findByUser_Id(UUID userId);
 }

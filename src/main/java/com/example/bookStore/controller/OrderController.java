@@ -2,6 +2,7 @@ package com.example.bookStore.controller;
 
 
 import com.example.bookStore.dto.pojo.PurchaseOrderDto;
+import com.example.bookStore.dto.pojo.UserDto;
 import com.example.bookStore.model.AppUser;
 import com.example.bookStore.model.PurchaseOrder;
 import com.example.bookStore.service.PurchaseOrderService;
@@ -42,7 +43,7 @@ public class OrderController {
     }
     @Operation(tags = "Order Controller")
     @PostMapping("/orders/{userId}")
-    public ResponseEntity<List<PurchaseOrderDto>> getOrderOfAUser(@PathVariable AppUser userId) {
+    public ResponseEntity<List<PurchaseOrderDto>> getOrderOfAUser(@PathVariable UUID userId) {
         try {
             List<PurchaseOrderDto> purchasedOrdersDto = orderService.getAllOrderOfAUserByUpdatedDateDesc(userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(purchasedOrdersDto);
@@ -53,7 +54,7 @@ public class OrderController {
     }
     @Operation(tags = "Order Controller")
     @PostMapping("/orders/details/{orderId}")
-    public ResponseEntity<PurchaseOrderDto> getOrderOfAUser(@PathVariable UUID orderId) {
+    public ResponseEntity<PurchaseOrderDto> getOrderOfAUserDetails(@PathVariable UUID orderId) {
         try {
             PurchaseOrderDto purchasedOrderDtoWithBookDetails = orderService.findOrderWithBookDetailsByOrderId(orderId);
             return ResponseEntity.status(HttpStatus.CREATED).body(purchasedOrderDtoWithBookDetails);

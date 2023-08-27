@@ -98,8 +98,8 @@ public class PurchaseOrderService {
         purchaseOrderDto.setBooks(listOfBookDtos);
     }
 
-    public List<PurchaseOrderDto> getAllOrderOfAUserByUpdatedDateDesc(AppUser user) {
-        List<PurchaseOrder> purchaseOrders = purchaseOrderRepository.findByUser(user);
+    public List<PurchaseOrderDto> getAllOrderOfAUserByUpdatedDateDesc(UUID userId) {
+        List<PurchaseOrder> purchaseOrders = purchaseOrderRepository.findByUser_Id(userId);
 
         return purchaseOrders.stream().sorted((order1, order2) -> order2.getUpdatedAt().compareTo(order1.getUpdatedAt())).map(purchaseOrderDtoConverter::convert).collect(Collectors.toList());
 
