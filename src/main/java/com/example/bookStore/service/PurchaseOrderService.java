@@ -4,7 +4,6 @@ import com.example.bookStore.dto.converter.PurchaseOrderDtoConverter;
 import com.example.bookStore.dto.pojo.BookDto;
 import com.example.bookStore.dto.pojo.PurchaseOrderDto;
 import com.example.bookStore.model.AppUser;
-import com.example.bookStore.model.Book;
 import com.example.bookStore.model.PurchaseOrder;
 import com.example.bookStore.repository.PurchaseOrderRepository;
 import jakarta.persistence.EntityManager;
@@ -54,10 +53,8 @@ public class PurchaseOrderService {
     }
 
     public PurchaseOrderDto placeOrderWithMinPrice(PurchaseOrderDto purchaseOrderDto) {
-        // Calculate the total price
         BigDecimal totalOrderPrice = calculateTotalOrderPrice(purchaseOrderDto.getBooks());
 
-        // Check if the total price is at least $25
         if (totalOrderPrice.compareTo(new BigDecimal("25")) < 0) {
             throw new IllegalArgumentException("Total order price must be at least $25");
         }

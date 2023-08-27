@@ -29,11 +29,6 @@ public class ApplicationConfig {
 
     private final UserRepository repository;
 
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return (web) -> web.ignoring().anyRequest();
-//    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(); // You can use any other password encoder here
@@ -72,5 +67,6 @@ public class ApplicationConfig {
                 .bearerFormat("JWT")
                 .scheme("bearer");
     }
+
 
 }

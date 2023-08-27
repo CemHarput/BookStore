@@ -6,6 +6,8 @@ import com.example.bookStore.exception.BookNotFoundException;
 import com.example.bookStore.service.RateLimitingService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,12 +16,14 @@ import com.example.bookStore.service.BookService;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
+
 
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/")
 public class BookController {
+
+    private static final Logger logger =  LoggerFactory.getLogger(BookController.class);
 
     private final BookService bookService;
     private final RateLimitingService rateLimitingService;
@@ -36,8 +40,8 @@ public class BookController {
         try {
             return ResponseEntity.ok(bookService.getAllBooksOrderedByCreationDateDesc());
         } catch (Exception e) {
-            Logger.getLogger(String.valueOf(e));
-            throw new BookGetAllFailedException("Failed to get the city list ");
+            logger.error("Failed to get all books",e);
+            throw new BookGetAllFailedException("Failed to get all books ");
         }
 
     }
@@ -54,7 +58,8 @@ public class BookController {
                 return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Rate limit exceeded");
             }
         } catch (BookNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
+            logger.error("Failed to delete the book",e);
+            throw new BookNotFoundException("Book not found");
         }
     }
 
@@ -66,16 +71,25 @@ public class BookController {
             BookDto createdBook = bookService.createBook(bookDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
         } catch (Exception e) {
+            logger.error("Failed to create to book",e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
     @Operation(tags = "Book Controller")
     @GetMapping("/books/{isbn}")
-    public ResponseEntity<BookDto> findById(@PathVariable UUID isbn){
+    public ResponseEntity<BookDto> findById(@PathVariable UUID isbn) {
 
-        BookDto bookDto = bookService.findBookById(isbn);
 
-        return ResponseEntity.ok(bookDto);
+        try {
+            BookDto bookDto = bookService.findBookById(isbn);
+
+            return ResponseEntity.ok(bookDto);
+        } catch (Exception e) {
+            logger.error("Failed to get the book", e);
+            throw new BookNotFoundException("Book not found");
+        }
+
     }
 
     @Operation(tags = "Book Controller")
@@ -86,7 +100,8 @@ public class BookController {
             BookDto updatedBook = bookService.updateBook(isbn, bookDto);
             return ResponseEntity.ok(updatedBook);
         } catch (BookNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            logger.error("Failed to update the book",e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

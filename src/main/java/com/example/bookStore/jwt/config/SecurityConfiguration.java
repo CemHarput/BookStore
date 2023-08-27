@@ -34,7 +34,8 @@ public class SecurityConfiguration {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/api/v1/users/**",
-            "/api/v1/books/**"
+            "/api/v1/books/**",
+            "/api/v1/orders/**"
             // other public endpoints of your API may be appended to this array
     };
 
