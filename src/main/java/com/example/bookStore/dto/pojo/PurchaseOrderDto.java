@@ -15,7 +15,7 @@ public class PurchaseOrderDto {
     private UUID orderId;
 
     private BigDecimal totalPrice;
-    private AppUser user;
+    private UserDto user;
     private List<BookDto> books;
     private Date orderDate;
     private Date createdAt;
@@ -40,11 +40,11 @@ public class PurchaseOrderDto {
         this.totalPrice = totalPrice;
     }
 
-    public AppUser getUser() {
+    public UserDto getUser() {
         return user;
     }
 
-    public void setUser(AppUser user) {
+    public void setUser(UserDto user) {
         this.user = user;
     }
 

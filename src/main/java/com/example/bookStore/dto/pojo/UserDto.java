@@ -14,7 +14,6 @@ public class UserDto {
     private String password;
     private Date createdAt;
     private Date updateAt;
-    private List<PurchaseOrderDto> purchaseOrders;
 
     public UserDto() {
     }
@@ -67,11 +66,4 @@ public class UserDto {
         this.updateAt = updateAt;
     }
 
-    public List<PurchaseOrderDto> getPurchaseOrders() {
-        return purchaseOrders;
-    }
-
-    public void setPurchaseOrders(List<PurchaseOrderDto> purchaseOrders) {
-        this.purchaseOrders = purchaseOrders;
-    }
 }

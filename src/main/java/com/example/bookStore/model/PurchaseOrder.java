@@ -32,6 +32,15 @@ public class PurchaseOrder {
 
     public PurchaseOrder() {
     }
+    public PurchaseOrder(UUID orderId, BigDecimal totalPrice, AppUser user, List<Book> books, Date orderDate, Date createdAt, Date updatedAt) {
+        this.orderId = orderId;
+        this.totalPrice = totalPrice;
+        this.user = user;
+        this.books = books;
+        this.orderDate = orderDate;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 
     public UUID getOrderId() {
         return orderId;
