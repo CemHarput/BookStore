@@ -2,6 +2,7 @@ package com.example.bookStore.controller;
 
 
 import com.example.bookStore.dto.pojo.PurchaseOrderDto;
+import com.example.bookStore.dto.pojo.PurchaseRequestDto;
 import com.example.bookStore.dto.pojo.UserDto;
 import com.example.bookStore.model.AppUser;
 import com.example.bookStore.model.PurchaseOrder;
@@ -54,9 +55,9 @@ public class OrderController {
     }
     @Operation(tags = "Order Controller")
     @PostMapping("/orders/details/{orderId}")
-    public ResponseEntity<PurchaseOrderDto> getOrderOfAUserDetails(@PathVariable UUID orderId) {
+    public ResponseEntity<PurchaseRequestDto> getOrderOfAUserDetails(@PathVariable UUID orderId) {
         try {
-            PurchaseOrderDto purchasedOrderDtoWithBookDetails = orderService.findOrderWithBookDetailsByOrderId(orderId);
+            PurchaseRequestDto purchasedOrderDtoWithBookDetails = orderService.findOrderWithBookDetailsByOrderId(orderId);
             return ResponseEntity.status(HttpStatus.CREATED).body(purchasedOrderDtoWithBookDetails);
         } catch (Exception e) {
             logger.error("Failed to get order's details", e);

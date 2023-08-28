@@ -2,13 +2,17 @@ package com.example.bookStore.service;
 
 import com.example.bookStore.dto.converter.OrderRequestBookDtoConverter;
 import com.example.bookStore.dto.converter.PurchaseOrderDtoConverter;
-import com.example.bookStore.dto.pojo.BookDto;
+import com.example.bookStore.dto.converter.PurchaseRequestDtoConverter;
 import com.example.bookStore.dto.pojo.OrderRequestBookDto;
 import com.example.bookStore.dto.pojo.PurchaseOrderDto;
+import com.example.bookStore.dto.pojo.PurchaseRequestDto;
+import com.example.bookStore.exception.UserCannotBeFoundException;
+import com.example.bookStore.model.AppUser;
 import com.example.bookStore.model.Book;
 import com.example.bookStore.model.PurchaseOrder;
 import com.example.bookStore.repository.BookRepository;
 import com.example.bookStore.repository.PurchaseOrderRepository;
+import com.example.bookStore.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,17 +32,22 @@ public class PurchaseOrderService {
 
     private final OrderRequestBookDtoConverter orderRequestBookDto;
 
-    public PurchaseOrderService(PurchaseOrderRepository purchaseOrderRepository, BookRepository bookRepository, PurchaseOrderDtoConverter purchaseOrderDtoConverter, OrderRequestBookDtoConverter orderRequestBookDto) {
+    private final PurchaseRequestDtoConverter purchaseRequestDtoConverter;
+
+    private final UserRepository userRepository;
+
+    public PurchaseOrderService(PurchaseOrderRepository purchaseOrderRepository, BookRepository bookRepository, PurchaseOrderDtoConverter purchaseOrderDtoConverter, OrderRequestBookDtoConverter orderRequestBookDto, PurchaseRequestDtoConverter purchaseRequestDtoConverter, UserRepository userRepository) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.bookRepository = bookRepository;
         this.purchaseOrderDtoConverter = purchaseOrderDtoConverter;
         this.orderRequestBookDto = orderRequestBookDto;
+        this.purchaseRequestDtoConverter = purchaseRequestDtoConverter;
+        this.userRepository = userRepository;
     }
 
-    public PurchaseOrderDto findOrderWithBookDetailsByOrderId(UUID id) {
+    public PurchaseRequestDto findOrderWithBookDetailsByOrderId(UUID id) {
         PurchaseOrder purchaseOrder = purchaseOrderRepository.findByOrderId(id);
-
-        return purchaseOrderDtoConverter.convert(purchaseOrder);
+        return purchaseRequestDtoConverter.convert(purchaseOrder);
     }
 
     public PurchaseOrderDto placeOrderWithMinPrice(PurchaseOrderDto purchaseOrderDto) {
@@ -105,7 +114,11 @@ public class PurchaseOrderService {
     public List<PurchaseOrderDto> getAllOrderOfAUserByUpdatedDateDesc(UUID userId) {
         List<PurchaseOrder> purchaseOrders = purchaseOrderRepository.findByUser_Id(userId);
 
-        return purchaseOrders.stream().sorted((order1, order2) -> order2.getUpdatedAt().compareTo(order1.getUpdatedAt())).map(purchaseOrderDtoConverter::convert).collect(Collectors.toList());
+        return purchaseOrders.stream().sorted((order1, order2) -> {
+            Date updatedAt1 = order1.getUpdatedAt() != null ? order1.getUpdatedAt() : new Date();
+            Date updatedAt2 = order2.getUpdatedAt() != null ? order2.getUpdatedAt() : new Date();
+            return updatedAt2.compareTo(updatedAt1);
+        }).map(purchaseOrderDtoConverter::convert).collect(Collectors.toList());
 
 
     }
