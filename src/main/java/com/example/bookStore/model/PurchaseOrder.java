@@ -24,8 +24,6 @@ public class PurchaseOrder {
     private AppUser user;
     @OneToMany(mappedBy = "purchaseOrder", fetch = FetchType.LAZY, cascade = {
             CascadeType.PERSIST,
-            CascadeType.MERGE,
-            CascadeType.REFRESH
     })
     private List<Book> books;
 
