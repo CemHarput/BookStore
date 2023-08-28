@@ -27,7 +27,7 @@ public class Book {
     private Date updateAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id") // This is the foreign key column in the Order table
+    @JoinColumn(name = "order_id")
     private PurchaseOrder purchaseOrder;
 
 

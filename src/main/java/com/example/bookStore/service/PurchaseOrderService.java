@@ -33,16 +33,12 @@ public class PurchaseOrderService {
     private final OrderRequestBookDtoConverter orderRequestBookDto;
 
     private final PurchaseRequestDtoConverter purchaseRequestDtoConverter;
-
-    private final UserRepository userRepository;
-
-    public PurchaseOrderService(PurchaseOrderRepository purchaseOrderRepository, BookRepository bookRepository, PurchaseOrderDtoConverter purchaseOrderDtoConverter, OrderRequestBookDtoConverter orderRequestBookDto, PurchaseRequestDtoConverter purchaseRequestDtoConverter, UserRepository userRepository) {
+    public PurchaseOrderService(PurchaseOrderRepository purchaseOrderRepository, BookRepository bookRepository, PurchaseOrderDtoConverter purchaseOrderDtoConverter, OrderRequestBookDtoConverter orderRequestBookDto, PurchaseRequestDtoConverter purchaseRequestDtoConverter) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.bookRepository = bookRepository;
         this.purchaseOrderDtoConverter = purchaseOrderDtoConverter;
         this.orderRequestBookDto = orderRequestBookDto;
         this.purchaseRequestDtoConverter = purchaseRequestDtoConverter;
-        this.userRepository = userRepository;
     }
 
     public PurchaseRequestDto findOrderWithBookDetailsByOrderId(UUID id) {
@@ -99,6 +95,7 @@ public class PurchaseOrderService {
         PurchaseOrder savedOrder = purchaseOrderDtoConverter.reverseConvert(purchaseOrderDto);
         savedOrder.setCreatedAt(new Date());
         savedOrder.setBooks(purchaseOrder.getBooks());
+
         purchaseOrderRepository.save(savedOrder);
     }
 

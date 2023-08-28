@@ -21,6 +21,6 @@ public class BookDto {
     private String author;
     private BigDecimal price;
     private int stockQuantity;
-    private String order;
+
 
 }

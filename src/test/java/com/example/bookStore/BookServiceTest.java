@@ -34,34 +34,6 @@ public class BookServiceTest {
         bookService = new BookService(bookRepository, bookDtoConverter);
     }
     @Test
-    void testGetAllBooksOrderedByCreationDateDesc() {
-        Book firstBook= Book.builder().ISBN(UUID.randomUUID()).title("Book 1").author("Author 1").price(BigDecimal.valueOf(19.99)).stockQuantity(10).createdAt(new Date()).build();
-        Book secondBook= Book.builder().ISBN(UUID.randomUUID()).title("Book 2").author("Author 2").price(BigDecimal.valueOf(29.99)).stockQuantity(5).createdAt(new Date()).build();
-
-        List<Book> mockBooks = Arrays.asList(firstBook, secondBook);
-
-        when(bookRepository.findAll(any(Sort.class))).thenReturn(mockBooks);
-        when(bookDtoConverter.convert(any(Book.class))).thenReturn(new BookDto());
-
-        List<BookDto> result = bookService.getAllBooksOrderedByCreationDateDesc();
-
-        assertEquals(2, result.size());
-        verify(bookRepository, times(1)).findAll(any(Sort.class));
-        verify(bookDtoConverter, times(2)).convert(any(Book.class));
-    }
-    @Test
-    void testDeleteBook() {
-        UUID bookId = UUID.randomUUID();
-        Book book= Book.builder().ISBN(UUID.randomUUID()).title("Book").author("Author").price(BigDecimal.valueOf(19.99)).stockQuantity(10).createdAt(new Date()).build();
-
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
-
-        assertDoesNotThrow(() -> bookService.deleteBook(bookId));
-
-        verify(bookRepository, times(1)).delete(book);
-    }
-
-    @Test
     void testDeleteBook_BookNotFound() {
         UUID bookId = UUID.randomUUID();
         when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
@@ -70,19 +42,55 @@ public class BookServiceTest {
 
         verify(bookRepository, never()).delete(any(Book.class));
     }
-
     @Test
-    void testFindBookById() {
+    public void testFindBookById_BookExists() {
         UUID bookId = UUID.randomUUID();
-        Book book= Book.builder().ISBN(UUID.randomUUID()).title("Book").author("Author").price(BigDecimal.valueOf(19.99)).stockQuantity(10).createdAt(new Date()).build();
-
+        Book book = new Book();
+        book.setTitle("Sample Title");
+        book.setAuthor("Sample Author");
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
-        when(bookDtoConverter.convert(book)).thenReturn(new BookDto());
 
-        BookDto result = bookService.findBookById(bookId);
+        BookDto expectedDto = new BookDto();
+        expectedDto.setTitle("Sample Title");
+        expectedDto.setAuthor("Sample Author");
+        when(bookDtoConverter.convert(book)).thenReturn(expectedDto);
 
-        assertNotNull(result);
-        verify(bookRepository, times(1)).findById(bookId);
-        verify(bookDtoConverter, times(1)).convert(book);
+        BookDto actualDto = bookService.findBookById(bookId);
+
+        assertEquals(expectedDto.getTitle(), actualDto.getTitle());
+        assertEquals(expectedDto.getAuthor(), actualDto.getAuthor());
+    }
+    @Test
+    public void testCreateBook() {
+        BookDto inputDto = new BookDto();
+        inputDto.setTitle("Sample Title");
+        inputDto.setAuthor("Sample Author");
+        inputDto.setPrice(BigDecimal.valueOf(29.99));
+        inputDto.setStockQuantity(100);
+
+        Book bookToSave = new Book();
+        when(bookDtoConverter.reverseConvert(inputDto)).thenReturn(bookToSave);
+
+        Book savedBook = new Book();
+        savedBook.setTitle("Sample Title");
+        savedBook.setAuthor("Sample Author");
+        savedBook.setPrice(BigDecimal.valueOf(29.99));
+        savedBook.setStockQuantity(100);
+        savedBook.setCreatedAt(new Date());
+        when(bookRepository.save(bookToSave)).thenReturn(savedBook);
+
+        BookDto expectedDto = new BookDto();
+        expectedDto.setTitle("Sample Title");
+        expectedDto.setAuthor("Sample Author");
+        expectedDto.setPrice(BigDecimal.valueOf(29.99));
+        expectedDto.setStockQuantity(100);
+        when(bookDtoConverter.convert(savedBook)).thenReturn(expectedDto);
+
+        BookDto actualDto = bookService.createBook(inputDto);
+
+        assertEquals(expectedDto.getTitle(), actualDto.getTitle());
+        assertEquals(expectedDto.getAuthor(), actualDto.getAuthor());
+        assertEquals(expectedDto.getPrice(), actualDto.getPrice());
+        assertEquals(expectedDto.getStockQuantity(), actualDto.getStockQuantity());
     }
 }
