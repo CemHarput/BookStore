@@ -1,19 +1,19 @@
 package com.example.bookStore.service;
 
-import com.example.bookStore.dto.converter.BookDtoConverter;
+import com.example.bookStore.dto.converter.OrderRequestBookDtoConverter;
 import com.example.bookStore.dto.converter.PurchaseOrderDtoConverter;
 import com.example.bookStore.dto.pojo.BookDto;
+import com.example.bookStore.dto.pojo.OrderRequestBookDto;
 import com.example.bookStore.dto.pojo.PurchaseOrderDto;
 import com.example.bookStore.model.Book;
 import com.example.bookStore.model.PurchaseOrder;
 import com.example.bookStore.repository.BookRepository;
 import com.example.bookStore.repository.PurchaseOrderRepository;
-import jakarta.persistence.EntityManager;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -26,16 +26,13 @@ public class PurchaseOrderService {
 
     private final PurchaseOrderDtoConverter purchaseOrderDtoConverter;
 
-    private final BookDtoConverter bookDtoConverter;
+    private final OrderRequestBookDtoConverter orderRequestBookDto;
 
-    private final BookService bookService;
-
-    public PurchaseOrderService(PurchaseOrderRepository purchaseOrderRepository, BookRepository bookRepository, PurchaseOrderDtoConverter purchaseOrderDtoConverter, BookDtoConverter bookDtoConverter, EntityManager entityManager, BookService bookService) {
+    public PurchaseOrderService(PurchaseOrderRepository purchaseOrderRepository, BookRepository bookRepository, PurchaseOrderDtoConverter purchaseOrderDtoConverter, OrderRequestBookDtoConverter orderRequestBookDto) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.bookRepository = bookRepository;
         this.purchaseOrderDtoConverter = purchaseOrderDtoConverter;
-        this.bookDtoConverter = bookDtoConverter;
-        this.bookService = bookService;
+        this.orderRequestBookDto = orderRequestBookDto;
     }
 
     public PurchaseOrderDto findOrderWithBookDetailsByOrderId(UUID id) {
@@ -48,39 +45,40 @@ public class PurchaseOrderService {
         PurchaseOrder purchaseOrder = purchaseOrderDtoConverter.reverseConvert(purchaseOrderDto);
         updateBooksByISBN(purchaseOrder,purchaseOrderDto);
 
-        BigDecimal totalOrderPrice = calculateTotalOrderPrice(purchaseOrderDto);
+        BigDecimal totalOrderPrice = calculateTotalOrderPrice(purchaseOrder);
 
         if (totalOrderPrice.compareTo(new BigDecimal("25")) < 0) {
             throw new IllegalArgumentException("Total order price must be at least $25");
         }
         purchaseOrderDto.setTotalPrice(totalOrderPrice);
         PurchaseOrder savedOrder = purchaseOrderDtoConverter.reverseConvert(purchaseOrderDto);
+        savedOrder.setCreatedAt(new Date());
+        savedOrder.setBooks(purchaseOrder.getBooks());
         purchaseOrderRepository.save(savedOrder);
         return purchaseOrderDtoConverter.convert(savedOrder);
     }
-    private BigDecimal calculateTotalOrderPrice(PurchaseOrderDto purchaseOrderDto) {
+    private BigDecimal calculateTotalOrderPrice(PurchaseOrder purchaseOrder) {
         BigDecimal total = BigDecimal.ZERO;
-        for (BookDto book : purchaseOrderDto.getBooks()) {
+        for (Book book : purchaseOrder.getBooks()) {
             total = total.add(book.getPrice());
         }
         return total;
     }
 
     private void updateBooksByISBN(PurchaseOrder purchaseOrder, PurchaseOrderDto purchaseOrderDto) {
-        List<BookDto> listOfBookDtos = new ArrayList<>();
+        List<OrderRequestBookDto> listOfBookDtos = new ArrayList<>();
+        List<Book> selectedBooks=new ArrayList<>();
 
-        for (BookDto book : purchaseOrderDto.getBooks()) {
+        for (OrderRequestBookDto book : purchaseOrderDto.getBooks()) {
             Book existingBook = bookRepository.findByISBN(book.getISBN());
 
             if (existingBook != null) {
-                existingBook.setPurchaseOrderFk(purchaseOrder.getOrderId());
-
-                BookDto bookDto = bookDtoConverter.convert(existingBook);
-                bookService.updateBook(bookDto.getISBN(),bookDto);
+                selectedBooks.add(existingBook);
+                OrderRequestBookDto bookDto = orderRequestBookDto.convert(existingBook);
                 listOfBookDtos.add(bookDto);
             }
         }
-
+        purchaseOrder.setBooks(selectedBooks);
         purchaseOrderDto.setBooks(listOfBookDtos);
     }
 

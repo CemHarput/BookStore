@@ -54,6 +54,7 @@ public class BookService {
     }
     public BookDto createBook(BookDto bookDto){
         Book book = bookDtoConverter.reverseConvert(bookDto);
+        book.setCreatedAt(new Date());
         Book savedBook = bookRepository.save(book);
         return bookDtoConverter.convert(savedBook);
     }
@@ -73,7 +74,6 @@ public class BookService {
         book.setStockQuantity(bookDto.getStockQuantity());
         book.setUpdateAt(new Date());
         book.setPrice(bookDto.getPrice());
-        book.setPurchaseOrderFk(bookDto.getPurchaseOrderFk());
 
         Book updatedBook = bookRepository.save(book);
         return bookDtoConverter.convert(updatedBook);

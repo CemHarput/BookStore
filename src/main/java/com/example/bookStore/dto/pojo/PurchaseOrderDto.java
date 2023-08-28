@@ -16,10 +16,8 @@ public class PurchaseOrderDto {
 
     private BigDecimal totalPrice;
     private UserDto user;
-    private List<BookDto> books;
+    private List<OrderRequestBookDto> books;
     private Date orderDate;
-    private Date createdAt;
-    private Date updatedAt;
 
     public PurchaseOrderDto() {
     }
@@ -48,11 +46,11 @@ public class PurchaseOrderDto {
         this.user = user;
     }
 
-    public List<BookDto> getBooks() {
+    public List<OrderRequestBookDto> getBooks() {
         return books;
     }
 
-    public void setBooks(List<BookDto> books) {
+    public void setBooks(List<OrderRequestBookDto> books) {
         this.books = books;
     }
 
@@ -62,21 +60,5 @@ public class PurchaseOrderDto {
 
     public void setOrderDate(Date orderDate) {
         this.orderDate = orderDate;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }
