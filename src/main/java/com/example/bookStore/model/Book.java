@@ -14,7 +14,6 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@Builder
 public class Book {
 
     @Id
@@ -31,6 +30,7 @@ public class Book {
     @JoinColumn(name = "order_id") // This is the foreign key column in the Order table
     private PurchaseOrder purchaseOrder;
 
+    private UUID purchaseOrderFk;
     public Book() {
     }
     public Book(UUID ISBN, String title, String author, BigDecimal price, int stockQuantity, Date createdAt, Date updateAt, PurchaseOrder purchaseOrder) {

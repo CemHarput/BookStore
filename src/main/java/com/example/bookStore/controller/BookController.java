@@ -8,6 +8,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,18 +37,22 @@ public class BookController {
         this.rateLimitingService = rateLimitingService;
     }
 
+
     @Operation(tags = "Book Controller")
     @GetMapping("/books")
-    public ResponseEntity<List<BookDto>> getAllBooks() {
+    public ResponseEntity<Page<BookDto>> getPaginatedBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         try {
-            return ResponseEntity.ok(bookService.getAllBooksOrderedByCreationDateDesc());
+            Page<BookDto> bookPage = bookService.getPaginatedBooksOrderedByCreationDateDesc(page, size);
+            return ResponseEntity.ok(bookPage);
         } catch (Exception e) {
-            logger.error("Failed to get all books",e);
-            throw new BookGetAllFailedException("Failed to get all books ");
+            logger.error("Failed to get paginated books", e);
+            throw new BookGetAllFailedException("Failed to get paginated books");
         }
-
     }
+
 
     @Operation(tags = "Book Controller")
     @DeleteMapping("/books/{isbn}")

@@ -4,13 +4,11 @@ import com.example.bookStore.dto.converter.BookDtoConverter;
 import com.example.bookStore.dto.converter.PurchaseOrderDtoConverter;
 import com.example.bookStore.dto.pojo.BookDto;
 import com.example.bookStore.dto.pojo.PurchaseOrderDto;
-import com.example.bookStore.model.AppUser;
 import com.example.bookStore.model.Book;
 import com.example.bookStore.model.PurchaseOrder;
 import com.example.bookStore.repository.BookRepository;
 import com.example.bookStore.repository.PurchaseOrderRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -30,21 +28,16 @@ public class PurchaseOrderService {
 
     private final BookDtoConverter bookDtoConverter;
 
-    public PurchaseOrderService(PurchaseOrderRepository purchaseOrderRepository, BookRepository bookRepository, PurchaseOrderDtoConverter purchaseOrderDtoConverter, BookDtoConverter bookDtoConverter, EntityManager entityManager) {
+    private final BookService bookService;
+
+    public PurchaseOrderService(PurchaseOrderRepository purchaseOrderRepository, BookRepository bookRepository, PurchaseOrderDtoConverter purchaseOrderDtoConverter, BookDtoConverter bookDtoConverter, EntityManager entityManager, BookService bookService) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.bookRepository = bookRepository;
         this.purchaseOrderDtoConverter = purchaseOrderDtoConverter;
         this.bookDtoConverter = bookDtoConverter;
+        this.bookService = bookService;
     }
 
-    public List<PurchaseOrderDto> getAllOrderOrderedByUpdateDateDesc() {
-        Sort sortByUpdateDateDesc = Sort.by(Sort.Direction.DESC, "updatedAt");
-
-        return purchaseOrderRepository.findAll(sortByUpdateDateDesc)
-                .stream()
-                .map(purchaseOrderDtoConverter::convert)
-                .collect(Collectors.toList());
-    }
     public PurchaseOrderDto findOrderWithBookDetailsByOrderId(UUID id) {
         PurchaseOrder purchaseOrder = purchaseOrderRepository.findByOrderId(id);
 
@@ -80,8 +73,10 @@ public class PurchaseOrderService {
             Book existingBook = bookRepository.findByISBN(book.getISBN());
 
             if (existingBook != null) {
-                existingBook.setPurchaseOrder(purchaseOrder);
+                existingBook.setPurchaseOrderFk(purchaseOrder.getOrderId());
+
                 BookDto bookDto = bookDtoConverter.convert(existingBook);
+                bookService.updateBook(bookDto.getISBN(),bookDto);
                 listOfBookDtos.add(bookDto);
             }
         }

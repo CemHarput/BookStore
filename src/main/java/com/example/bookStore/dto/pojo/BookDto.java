@@ -16,6 +16,7 @@ public class BookDto {
     private Date updateAt;
     private String order;
 
+    private UUID purchaseOrderFk;
     public BookDto() {
     }
 
@@ -81,5 +82,13 @@ public class BookDto {
 
     public void setOrder(String order) {
         this.order = order;
+    }
+
+    public UUID getPurchaseOrderFk() {
+        return purchaseOrderFk;
+    }
+
+    public void setPurchaseOrderFk(UUID purchaseOrderFk) {
+        this.purchaseOrderFk = purchaseOrderFk;
     }
 }

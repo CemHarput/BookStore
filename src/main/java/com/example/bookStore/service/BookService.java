@@ -4,7 +4,7 @@ import com.example.bookStore.dto.converter.BookDtoConverter;
 import com.example.bookStore.dto.pojo.BookDto;
 import com.example.bookStore.exception.BookNotFoundException;
 import com.example.bookStore.model.Book;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import com.example.bookStore.repository.BookRepository;
 
@@ -24,13 +24,16 @@ public class BookService {
         this.bookRepository = bookRepository;
         this.bookDtoConverter = bookDtoConverter;
     }
-    public List<BookDto> getAllBooksOrderedByCreationDateDesc() {
+    public Page<BookDto> getPaginatedBooksOrderedByCreationDateDesc(int page, int size) {
         Sort sortByCreationDateDesc = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sortByCreationDateDesc);
 
-        return bookRepository.findAll(sortByCreationDateDesc)
-                .stream()
+        Page<Book> bookPage = bookRepository.findAll(pageable);
+        List<BookDto> bookDtos = bookPage.getContent().stream()
                 .map(bookDtoConverter::convert)
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(bookDtos, pageable, bookPage.getTotalElements());
     }
 
     public void deleteBook(UUID id) {
@@ -70,6 +73,7 @@ public class BookService {
         book.setStockQuantity(bookDto.getStockQuantity());
         book.setUpdateAt(new Date());
         book.setPrice(bookDto.getPrice());
+        book.setPurchaseOrderFk(bookDto.getPurchaseOrderFk());
 
         Book updatedBook = bookRepository.save(book);
         return bookDtoConverter.convert(updatedBook);
