@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 public class PurchaseOrder {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID orderId;
 
     private BigDecimal totalPrice;

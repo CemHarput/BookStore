@@ -94,8 +94,12 @@ public class PurchaseOrderService {
     private void savePurchaseOrder(PurchaseOrderDto purchaseOrderDto, PurchaseOrder purchaseOrder) {
         PurchaseOrder savedOrder = purchaseOrderDtoConverter.reverseConvert(purchaseOrderDto);
         savedOrder.setCreatedAt(new Date());
-        savedOrder.setBooks(purchaseOrder.getBooks());
+        List<Book> books = purchaseOrder.getBooks();
 
+        for (Book book : books) {
+            book.setPurchaseOrder(savedOrder);
+        }
+        savedOrder.setBooks(books);
         purchaseOrderRepository.save(savedOrder);
     }
 
