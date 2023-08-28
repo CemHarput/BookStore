@@ -42,21 +42,57 @@ public class PurchaseOrderService {
     }
 
     public PurchaseOrderDto placeOrderWithMinPrice(PurchaseOrderDto purchaseOrderDto) {
-        PurchaseOrder purchaseOrder = purchaseOrderDtoConverter.reverseConvert(purchaseOrderDto);
-        updateBooksByISBN(purchaseOrder,purchaseOrderDto);
+        PurchaseOrder purchaseOrder = createPurchaseOrderFromDto(purchaseOrderDto);
+        updateBooksByISBN(purchaseOrder, purchaseOrderDto);
+        validateMinOrderPrice(purchaseOrder);
 
+        BigDecimal totalOrderPrice = calculateTotalOrderPrice(purchaseOrder);
+        purchaseOrderDto.setTotalPrice(totalOrderPrice);
+
+        savePurchaseOrder(purchaseOrderDto, purchaseOrder);
+
+        return purchaseOrderDtoConverter.convert(purchaseOrder);
+    }
+
+    private PurchaseOrder createPurchaseOrderFromDto(PurchaseOrderDto purchaseOrderDto) {
+        return purchaseOrderDtoConverter.reverseConvert(purchaseOrderDto);
+    }
+
+    private void updateBooksByISBN(PurchaseOrder purchaseOrder, PurchaseOrderDto purchaseOrderDto) {
+        List<Book> selectedBooks = new ArrayList<>();
+
+        for (OrderRequestBookDto bookDto : purchaseOrderDto.getBooks()) {
+            Book existingBook = bookRepository.findByISBN(bookDto.getISBN());
+
+            if (existingBook != null) {
+                selectedBooks.add(existingBook);
+            }
+        }
+        purchaseOrder.setBooks(selectedBooks);
+        purchaseOrderDto.setBooks(convertBooksToDto(selectedBooks));
+    }
+
+    private void validateMinOrderPrice(PurchaseOrder purchaseOrder) {
         BigDecimal totalOrderPrice = calculateTotalOrderPrice(purchaseOrder);
 
         if (totalOrderPrice.compareTo(new BigDecimal("25")) < 0) {
             throw new IllegalArgumentException("Total order price must be at least $25");
         }
-        purchaseOrderDto.setTotalPrice(totalOrderPrice);
+    }
+
+    private List<OrderRequestBookDto> convertBooksToDto(List<Book> books) {
+        return books.stream()
+                .map(orderRequestBookDto::convert)
+                .collect(Collectors.toList());
+    }
+
+    private void savePurchaseOrder(PurchaseOrderDto purchaseOrderDto, PurchaseOrder purchaseOrder) {
         PurchaseOrder savedOrder = purchaseOrderDtoConverter.reverseConvert(purchaseOrderDto);
         savedOrder.setCreatedAt(new Date());
         savedOrder.setBooks(purchaseOrder.getBooks());
         purchaseOrderRepository.save(savedOrder);
-        return purchaseOrderDtoConverter.convert(savedOrder);
     }
+
     private BigDecimal calculateTotalOrderPrice(PurchaseOrder purchaseOrder) {
         BigDecimal total = BigDecimal.ZERO;
         for (Book book : purchaseOrder.getBooks()) {
@@ -65,22 +101,6 @@ public class PurchaseOrderService {
         return total;
     }
 
-    private void updateBooksByISBN(PurchaseOrder purchaseOrder, PurchaseOrderDto purchaseOrderDto) {
-        List<OrderRequestBookDto> listOfBookDtos = new ArrayList<>();
-        List<Book> selectedBooks=new ArrayList<>();
-
-        for (OrderRequestBookDto book : purchaseOrderDto.getBooks()) {
-            Book existingBook = bookRepository.findByISBN(book.getISBN());
-
-            if (existingBook != null) {
-                selectedBooks.add(existingBook);
-                OrderRequestBookDto bookDto = orderRequestBookDto.convert(existingBook);
-                listOfBookDtos.add(bookDto);
-            }
-        }
-        purchaseOrder.setBooks(selectedBooks);
-        purchaseOrderDto.setBooks(listOfBookDtos);
-    }
 
     public List<PurchaseOrderDto> getAllOrderOfAUserByUpdatedDateDesc(UUID userId) {
         List<PurchaseOrder> purchaseOrders = purchaseOrderRepository.findByUser_Id(userId);
