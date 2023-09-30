@@ -97,7 +97,7 @@ public class PurchaseOrderService {
         List<Book> books = purchaseOrder.getBooks();
 
         for (Book book : books) {
-            book.setPurchaseOrder(savedOrder);
+            book.getPurchaseOrders().add(savedOrder);
         }
         savedOrder.setBooks(books);
         purchaseOrderRepository.save(savedOrder);

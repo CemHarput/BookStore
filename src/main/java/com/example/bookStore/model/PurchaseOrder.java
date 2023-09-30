@@ -22,9 +22,13 @@ public class PurchaseOrder {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id") // This is the foreign key column in the Order table
     private AppUser user;
-    @OneToMany(mappedBy = "purchaseOrder", fetch = FetchType.LAZY, cascade = {
-            CascadeType.PERSIST,
-    })
+
+    @ManyToMany
+    @JoinTable(
+            name = "purchase_order_book",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "ISBN")
+    )
     private List<Book> books;
 
 

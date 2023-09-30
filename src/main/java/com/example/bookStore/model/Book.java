@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -26,14 +27,13 @@ public class Book {
     private Date createdAt;
     private Date updateAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private PurchaseOrder purchaseOrder;
+    @ManyToMany(mappedBy = "books")
+    private List<PurchaseOrder> purchaseOrders;
 
 
     public Book() {
     }
-    public Book(UUID ISBN, String title, String author, BigDecimal price, int stockQuantity, Date createdAt, Date updateAt, PurchaseOrder purchaseOrder) {
+    public Book(UUID ISBN, String title, String author, BigDecimal price, int stockQuantity, Date createdAt, Date updateAt) {
         this.ISBN = ISBN;
         this.title = title;
         this.author = author;
@@ -41,7 +41,7 @@ public class Book {
         this.stockQuantity = stockQuantity;
         this.createdAt = createdAt;
         this.updateAt = updateAt;
-        this.purchaseOrder = purchaseOrder;
+
     }
 
     @Override
@@ -55,4 +55,6 @@ public class Book {
     public int hashCode() {
         return Objects.hash(getISBN(), getTitle(), getAuthor(), getPrice(), getStockQuantity(), getCreatedAt(), getUpdateAt());
     }
+
+
 }

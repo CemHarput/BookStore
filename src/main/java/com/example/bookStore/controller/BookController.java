@@ -59,8 +59,8 @@ public class BookController {
     @PreAuthorize(value = "hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> deleteBook(@PathVariable UUID isbn) {
         try {
-            bookService.deleteBook(isbn);
-            if(rateLimitingService.tryAcquire()){
+           if(rateLimitingService.tryAcquire()){
+                bookService.deleteBook(isbn);
                 return ResponseEntity.ok("Book deleted successfully");
             }else{
                 return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Rate limit exceeded");
